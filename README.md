@@ -1,33 +1,50 @@
-This is a [Plasmo extension](https://docs.plasmo.com/) project bootstrapped with [`plasmo init`](https://www.npmjs.com/package/plasmo).
+## Clever Snap 📷
+
+### An AI-Powered Question Answering Browser Extension
+
+Simply capture an image of a question, and you can leverage the power of AI to get instant answers. Ideal for students, researchers, and anyone in need of quick, reliable information, this tool is a step towards a more efficient online experience.
+
+## Features
+
+- **Image Capture**: Draw a box around the question and capture it with ease.
+- **AI Integration**: AI models are used to extract the question from the image and provide you with an answer.
+- **Code Interpreter**: Get instant answers to coding questions. If needed the model will even run the code for you to get the most accurate answer.
+- **User-Friendly Interface**: Designed for simplicity and ease of use.
 
 ## Getting Started
 
-First, run the development server:
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
-```bash
-pnpm dev
-# or
-npm run dev
-```
+### Prerequisites
 
-Open your browser and load the appropriate development build. For example, if you are developing for the chrome browser, using manifest v3, use: `build/chrome-mv3-dev`.
+Before you begin, ensure you have the following installed:
 
-You can start editing the popup by modifying `popup.tsx`. It should auto-update as you make changes. To add an options page, simply add a `options.tsx` file to the root of the project, with a react component default exported. Likewise to add a content page, add a `content.ts` file to the root of the project, importing some module and do some logic, then reload the extension on your browser.
+- A modern web browser (e.g., Chrome, Firefox)
+- [pnpm](https://pnpm.io/)
 
-For further guidance, [visit our Documentation](https://docs.plasmo.com/)
+### Installation
 
-## Making production build
+1. **Clone the repository**
 
-Run the following:
+   ```bash
+   git clone https://github.com/GeraOSF/clever-snap.git
+   cd clever-snap
+   ```
 
-```bash
-pnpm build
-# or
-npm run build
-```
+2. **Install dependencies**
 
-This should create a production bundle for your extension, ready to be zipped and published to the stores.
+   ```bash
+   pnpm install
+   ```
 
-## Submit to the webstores
+3. **Run the development server or build the extension**
 
-The easiest way to deploy your Plasmo extension is to use the built-in [bpp](https://bpp.browser.market) GitHub action. Prior to using this action however, make sure to build your extension and upload the first version to the store to establish the basic credentials. Then, simply follow [this setup instruction](https://docs.plasmo.com/framework/workflows/submit) and you should be on your way for automated submission!
+   ```bash
+   pnpm dev
+   ```
+
+   or
+
+   ```bash
+   pnpm build
+   ```
