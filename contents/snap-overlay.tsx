@@ -25,9 +25,12 @@ export default function SnapOverlay() {
   if (!isSnapping) return null;
 
   return (
-    <div className="cursor-crosshair fixed inset-0 bg-black/50">
-      <Button onClick={() => setIsSnapping(false)} size="icon">
-        <XCircleIcon />
+    <div className="fixed inset-0 cursor-crosshair bg-black/50">
+      <Button
+        onClick={() => setIsSnapping(false)}
+        size="icon"
+        className="m-2 bg-transparent hover:bg-transparent">
+        <XCircleIcon className="h-full w-full" />
       </Button>
     </div>
   );
