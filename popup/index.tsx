@@ -3,14 +3,11 @@ import { Button } from "@/components/ui/button";
 import "@/style.css";
 
 function IndexPopup() {
-  async function beginSnap() {
-    console.log("begin snap");
-    await chrome.tabs.query(
-      { active: true, currentWindow: true },
-      ([activeTab]) => {
-        chrome.tabs.sendMessage(activeTab.id, { message: "begin-snap" });
-      }
-    );
+  function beginSnap() {
+    chrome.tabs.query({ active: true, currentWindow: true }, ([activeTab]) => {
+      chrome.tabs.sendMessage(activeTab.id, { message: "begin-snap" });
+      window.close();
+    });
   }
 
   return (
