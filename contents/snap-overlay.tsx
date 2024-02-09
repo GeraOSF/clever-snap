@@ -11,7 +11,7 @@ export default function SnapOverlay() {
   const [isSnapping, setIsSnapping] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isDrawing = useRef(false);
-  const positions = useRef<PositionInterval>({
+  const coordinates = useRef<BoxCoordinates>({
     start: { x: 0, y: 0 },
     end: { x: 0, y: 0 }
   });
@@ -45,13 +45,13 @@ export default function SnapOverlay() {
     function handleMouseDown(event: MouseEvent) {
       ctx.beginPath();
       ctx.moveTo(event.clientX, event.clientY);
-      positions.current.start = { x: event.clientX, y: event.clientY };
+      coordinates.current.start = { x: event.clientX, y: event.clientY };
       isDrawing.current = true;
     }
 
     function handleMouseMove(event: MouseEvent) {
       if (!isDrawing.current) return;
-      const startPosition = positions.current.start;
+      const startPosition = coordinates.current.start;
       const rectWidth = event.clientX - startPosition.x;
       const rectHeight = event.clientY - startPosition.y;
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -62,10 +62,19 @@ export default function SnapOverlay() {
 
     function handleMouseUp(event: MouseEvent) {
       if (!isDrawing.current) return;
-      isDrawing.current = false;
-      positions.current.end = { x: event.clientX, y: event.clientY };
       setIsSnapping(false);
-      // TODO: Send the positions to the background script
+      isDrawing.current = false;
+      coordinates.current.end = { x: event.clientX, y: event.clientY };
+
+      // TODO: Send coordinates to background script
+
+      // const response = await sendToBackground({
+      //   name: "coordinates",
+      //   body: {
+      //     coordinates: coordinates.current
+      //   }
+      // });
+      // console.log("Response from background", response.message);
     }
 
     canvas.addEventListener("mousedown", handleMouseDown);

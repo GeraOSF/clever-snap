@@ -3,7 +3,7 @@ type Position = {
   y: number;
 };
 
-type PositionInterval = {
+type BoxCoordinates = {
   start: Position;
   end: Position;
 };
