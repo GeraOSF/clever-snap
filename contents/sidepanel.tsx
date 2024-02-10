@@ -1,4 +1,3 @@
-import { clear, time } from "console";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import cssText from "data-text:@/style.css";
@@ -14,6 +13,7 @@ export function getStyle() {
 export default function Sidepanel() {
   const [mounted, setMounted] = useState(false);
   const [panelOpen, setPanelOpen] = useState(false);
+  const [imgUri, setImgUri] = useState("");
 
   function beginSnap() {
     chrome.runtime.sendMessage({ message: "begin-snap" });
@@ -21,15 +21,48 @@ export default function Sidepanel() {
   }
 
   useEffect(() => {
-    function handleMessage(request: { message: string }) {
-      if (request.message === "open-panel") {
+    function handleMessages(request: {
+      message: string;
+      imgUri: string;
+      coordinates: BoxCoordinates;
+    }) {
+      const { coordinates, imgUri: fullImgUri } = request;
+      function openPanel() {
         setPanelOpen(true);
         setMounted(true);
       }
+      if (request.message === "open-panel") openPanel();
+      if (request.message === "show-snap") {
+        const img = new Image();
+        img.onload = () => {
+          const cropWidth = coordinates.end.x - coordinates.start.x - 2;
+          const cropHeight = coordinates.end.y - coordinates.start.y - 2;
+          const canvas = document.createElement("canvas");
+          canvas.width = cropWidth;
+          canvas.height = cropHeight;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(
+            img,
+            coordinates.start.x + 1,
+            coordinates.start.y + 1, // Start clipping
+            cropWidth,
+            cropHeight, // Clipping size
+            0,
+            0, // Place the clipped part at the canvas origin
+            cropWidth,
+            cropHeight
+          ); // Size of the clipped image on the canvas
+          const croppedImgUri = canvas.toDataURL();
+          setImgUri(croppedImgUri);
+          // TODO: Send the croppedDataUri to the background script
+        };
+        img.src = fullImgUri;
+        openPanel();
+      }
     }
-    chrome.runtime.onMessage.addListener(handleMessage);
+    chrome.runtime.onMessage.addListener(handleMessages);
     return () => {
-      chrome.runtime.onMessage.removeListener(handleMessage);
+      chrome.runtime.onMessage.removeListener(handleMessages);
     };
   }, []);
 
@@ -47,7 +80,7 @@ export default function Sidepanel() {
   return (
     <div
       className={cn(
-        "bg-background fixed right-0 flex h-full flex-col gap-2 rounded-l-lg px-4 py-2",
+        "bg-background fixed right-0 flex h-full w-96 flex-col gap-2 rounded-l-lg px-4 py-2",
         {
           "animate-out slide-out-to-right-full": !panelOpen,
           "animate-in slide-in-from-right-full": panelOpen
@@ -72,6 +105,9 @@ export default function Sidepanel() {
         </div>
         Draw a box
       </Button>
+      {imgUri && (
+        <img src={imgUri} alt="Snapshot" className="w-full object-cover" />
+      )}
     </div>
   );
 }

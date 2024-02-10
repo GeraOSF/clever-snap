@@ -1,6 +1,8 @@
 import cssText from "data-text:@/style.css";
 import { useEffect, useRef, useState } from "react";
 
+import { sendToBackground } from "@plasmohq/messaging";
+
 export function getStyle() {
   const style = document.createElement("style");
   style.textContent = cssText;
@@ -60,21 +62,30 @@ export default function SnapOverlay() {
       ctx.strokeRect(startPosition.x, startPosition.y, rectWidth, rectHeight);
     }
 
-    function handleMouseUp(event: MouseEvent) {
+    async function handleMouseUp(event: MouseEvent) {
       if (!isDrawing.current) return;
       setIsSnapping(false);
       isDrawing.current = false;
       coordinates.current.end = { x: event.clientX, y: event.clientY };
-
-      // TODO: Send coordinates to background script
-
-      // const response = await sendToBackground({
-      //   name: "coordinates",
-      //   body: {
-      //     coordinates: coordinates.current
-      //   }
-      // });
-      // console.log("Response from background", response.message);
+      // Ensure that the start and end coordinates are in the correct order
+      if (coordinates.current.start.x > coordinates.current.end.x) {
+        [coordinates.current.start.x, coordinates.current.end.x] = [
+          coordinates.current.end.x,
+          coordinates.current.start.x
+        ];
+      }
+      if (coordinates.current.start.y > coordinates.current.end.y) {
+        [coordinates.current.start.y, coordinates.current.end.y] = [
+          coordinates.current.end.y,
+          coordinates.current.start.y
+        ];
+      }
+      await sendToBackground({
+        name: "generate-answer",
+        body: {
+          coordinates: coordinates.current
+        }
+      });
     }
 
     canvas.addEventListener("mousedown", handleMouseDown);
