@@ -81,7 +81,7 @@ export default function SnapOverlay() {
         ];
       }
       await sendToBackground({
-        name: "generate-answer",
+        name: "send-snap-to-panel",
         body: {
           coordinates: coordinates.current
         }

@@ -4,6 +4,8 @@ import cssText from "data-text:@/style.css";
 import { BoxSelectIcon, CameraIcon, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { sendToBackground } from "@plasmohq/messaging";
+
 export function getStyle() {
   const style = document.createElement("style");
   style.textContent = cssText;
@@ -34,7 +36,7 @@ export default function Sidepanel() {
       if (request.message === "open-panel") openPanel();
       if (request.message === "show-snap") {
         const img = new Image();
-        img.onload = () => {
+        img.onload = async () => {
           const cropWidth = coordinates.end.x - coordinates.start.x - 2;
           const cropHeight = coordinates.end.y - coordinates.start.y - 2;
           const canvas = document.createElement("canvas");
@@ -44,17 +46,20 @@ export default function Sidepanel() {
           ctx.drawImage(
             img,
             coordinates.start.x + 1,
-            coordinates.start.y + 1, // Start clipping
+            coordinates.start.y + 1, // Start cropping
             cropWidth,
-            cropHeight, // Clipping size
+            cropHeight, // Cropping size
             0,
-            0, // Place the clipped part at the canvas origin
+            0, // Place the cropped part at the canvas origin
             cropWidth,
-            cropHeight
-          ); // Size of the clipped image on the canvas
+            cropHeight // Size of the cropped image on the canvas
+          );
           const croppedImgUri = canvas.toDataURL();
           setImgUri(croppedImgUri);
-          // TODO: Send the croppedDataUri to the background script
+          await sendToBackground({
+            name: "generate-answer",
+            body: { imgUri: croppedImgUri }
+          });
         };
         img.src = fullImgUri;
         openPanel();
@@ -80,7 +85,7 @@ export default function Sidepanel() {
   return (
     <div
       className={cn(
-        "bg-background fixed right-0 flex h-full w-96 flex-col gap-2 rounded-l-lg px-4 py-2",
+        "fixed right-0 flex h-full w-96 flex-col gap-2 rounded-l-xl bg-background px-4 py-2 text-foreground",
         {
           "animate-out slide-out-to-right-full": !panelOpen,
           "animate-in slide-in-from-right-full": panelOpen
