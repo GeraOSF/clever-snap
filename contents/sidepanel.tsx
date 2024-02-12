@@ -29,11 +29,9 @@ export default function Sidepanel() {
       coordinates: BoxCoordinates;
     }) {
       const { coordinates, imgUri: fullImgUri } = request;
-      function openPanel() {
-        setPanelOpen(true);
-        setMounted(true);
+      if (request.message === "toggle-panel") {
+        setPanelOpen((prev) => !prev);
       }
-      if (request.message === "open-panel") openPanel();
       if (request.message === "show-snap") {
         const img = new Image();
         img.onload = async () => {
@@ -62,7 +60,7 @@ export default function Sidepanel() {
           });
         };
         img.src = fullImgUri;
-        openPanel();
+        setPanelOpen(true);
       }
     }
     chrome.runtime.onMessage.addListener(handleMessages);
@@ -77,6 +75,8 @@ export default function Sidepanel() {
       timeout = setTimeout(() => {
         setMounted(false);
       }, 100);
+    } else if (!mounted) {
+      setMounted(true);
     }
     return () => clearTimeout(timeout);
   }, [panelOpen]);
@@ -111,7 +111,11 @@ export default function Sidepanel() {
         Draw a box
       </Button>
       {imgUri && (
-        <img src={imgUri} alt="Snapshot" className="w-full object-cover" />
+        <img
+          src={imgUri}
+          alt="Snapshot"
+          className="max-h-52 w-full object-contain"
+        />
       )}
     </div>
   );

@@ -1,5 +1,5 @@
 chrome.action.onClicked.addListener((tab) => {
-  chrome.tabs.sendMessage(tab.id, { message: "open-panel" });
+  chrome.tabs.sendMessage(tab.id, { message: "toggle-panel" });
 });
 
 chrome.runtime.onMessage.addListener((req) => {
