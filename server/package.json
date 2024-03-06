@@ -1,11 +1,11 @@
 {
-  "name": "clever-snap-server",
+  "name": "@clever-snap/server",
   "version": "0.0.1",
   "private": true,
   "main": "build/index.js",
   "scripts": {
-    "build": "tsc",
     "dev": "tsx watch src/index.ts",
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
