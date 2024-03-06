@@ -1,6 +1,6 @@
+import { OPENAI_API_KEY } from "@/env-vars";
 import { Router } from "express";
 import OpenAI from "openai";
-import { OPENAI_API_KEY } from "@/env-vars";
 
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 const answerRouter = Router();

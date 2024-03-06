@@ -1,6 +1,6 @@
-import express from "express";
 import { PORT } from "@/env-vars";
 import answerRouter from "@/routes/answer";
+import express from "express";
 
 const app = express();
 app.use(express.json({ limit: "2mb" }));
