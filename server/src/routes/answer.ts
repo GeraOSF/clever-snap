@@ -18,7 +18,7 @@ answerRouter.post("/generate", async (req, res) => {
         {
           role: "system",
           content:
-            'You will receive an image of a question(s) and you will answer it/them without explanation. If there are multiple questions list them. The user might ask for an explanation afterwards. If the image does not contain an answerable content, you should respond with "This snap does not contain an answerable content. Please try again."',
+            'You will receive an image of a question(s) and you will answer it/them without explanation. If there are multiple questions list them. The user might ask for an explanation after. If the image does not contain an answerable content, you should respond with "This snap does not contain an answerable content. Please try again."',
         },
         {
           role: "user",
@@ -30,6 +30,7 @@ answerRouter.post("/generate", async (req, res) => {
           ],
         },
       ],
+      max_tokens: 1000,
     });
     const answer = response.choices[0].message.content;
     res.json({ answer });
