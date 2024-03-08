@@ -9,6 +9,12 @@ export function getStyle() {
   return style;
 }
 
+enum MouseButton {
+  Left,
+  Middle,
+  Right
+}
+
 export default function SnapOverlay() {
   const [isSnapping, setIsSnapping] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -18,12 +24,17 @@ export default function SnapOverlay() {
     end: { x: 0, y: 0 }
   });
 
+  function cancel() {
+    isDrawing.current = false;
+    setIsSnapping(false);
+  }
+
   useEffect(() => {
     function handleMessage(request: { message: string }) {
       if (request.message === "begin-snap") setIsSnapping(true);
     }
     function handleEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") setIsSnapping(false);
+      if (event.key === "Escape") cancel();
     }
 
     chrome.runtime.onMessage.addListener(handleMessage);
@@ -45,47 +56,54 @@ export default function SnapOverlay() {
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     function handleMouseDown(event: MouseEvent) {
-      ctx.beginPath();
-      ctx.moveTo(event.clientX, event.clientY);
-      coordinates.current.start = { x: event.clientX, y: event.clientY };
-      isDrawing.current = true;
+      const buttonClicked = event.button;
+      if (buttonClicked === MouseButton.Left) {
+        ctx.beginPath();
+        ctx.moveTo(event.clientX, event.clientY);
+        coordinates.current.start = { x: event.clientX, y: event.clientY };
+        isDrawing.current = true;
+      } else if (isDrawing.current) {
+        cancel();
+      }
     }
 
     function handleMouseMove(event: MouseEvent) {
-      if (!isDrawing.current) return;
-      const startPosition = coordinates.current.start;
-      const rectWidth = event.clientX - startPosition.x;
-      const rectHeight = event.clientY - startPosition.y;
-      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-      ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-      ctx.clearRect(startPosition.x, startPosition.y, rectWidth, rectHeight);
-      ctx.strokeRect(startPosition.x, startPosition.y, rectWidth, rectHeight);
+      if (isDrawing.current) {
+        const startPosition = coordinates.current.start;
+        const rectWidth = event.clientX - startPosition.x;
+        const rectHeight = event.clientY - startPosition.y;
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        ctx.clearRect(startPosition.x, startPosition.y, rectWidth, rectHeight);
+        ctx.strokeRect(startPosition.x, startPosition.y, rectWidth, rectHeight);
+      }
     }
 
     async function handleMouseUp(event: MouseEvent) {
-      if (!isDrawing.current) return;
-      setIsSnapping(false);
-      isDrawing.current = false;
-      coordinates.current.end = { x: event.clientX, y: event.clientY };
-      // Ensure that the start and end coordinates are in the correct order
-      if (coordinates.current.start.x > coordinates.current.end.x) {
-        [coordinates.current.start.x, coordinates.current.end.x] = [
-          coordinates.current.end.x,
-          coordinates.current.start.x
-        ];
-      }
-      if (coordinates.current.start.y > coordinates.current.end.y) {
-        [coordinates.current.start.y, coordinates.current.end.y] = [
-          coordinates.current.end.y,
-          coordinates.current.start.y
-        ];
-      }
-      await sendToBackground({
-        name: "send-snap-to-panel",
-        body: {
-          coordinates: coordinates.current
+      if (isDrawing.current) {
+        setIsSnapping(false);
+        isDrawing.current = false;
+        coordinates.current.end = { x: event.clientX, y: event.clientY };
+        // Ensure that the start and end coordinates are in the correct order
+        if (coordinates.current.start.x > coordinates.current.end.x) {
+          [coordinates.current.start.x, coordinates.current.end.x] = [
+            coordinates.current.end.x,
+            coordinates.current.start.x
+          ];
         }
-      });
+        if (coordinates.current.start.y > coordinates.current.end.y) {
+          [coordinates.current.start.y, coordinates.current.end.y] = [
+            coordinates.current.end.y,
+            coordinates.current.start.y
+          ];
+        }
+        await sendToBackground({
+          name: "send-snap-to-panel",
+          body: {
+            coordinates: coordinates.current
+          }
+        }).then(() => {});
+      }
     }
 
     canvas.addEventListener("mousedown", handleMouseDown);
