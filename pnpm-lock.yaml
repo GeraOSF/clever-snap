@@ -29,6 +29,9 @@ importers:
       lucide-react:
         specifier: ^0.321.0
         version: 0.321.0(react@18.2.0)
+      marked:
+        specifier: ^12.0.1
+        version: 12.0.1
       plasmo:
         specifier: 0.84.2
         version: 0.84.2(postcss@8.4.35)(react-dom@18.2.0)(react@18.2.0)
@@ -5227,6 +5230,12 @@ packages:
       semver: 5.7.2
     dev: false
     optional: true
+
+  /marked@12.0.1:
+    resolution: {integrity: sha512-Y1/V2yafOcOdWQCX0XpAKXzDakPOpn6U0YLxTJs3cww6VxOzZV1BTOOYWLvH3gX38cq+iLwljHHTnMtlDfg01Q==}
+    engines: {node: '>= 18'}
+    hasBin: true
+    dev: false
 
   /md5@2.3.0:
     resolution: {integrity: sha512-T1GITYmFaKuO91vxyoQMFETst+O71VUPEU3ze5GNzDm0OWdP8v1ziTaAEPUr/3kLsY3Sftgz242A1SetQiDL7g==}

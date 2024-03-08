@@ -11,5 +11,8 @@
     "dev:extension": "pnpm --filter extension run dev",
     "dev:server": "pnpm --filter server run dev"
   },
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
 }
