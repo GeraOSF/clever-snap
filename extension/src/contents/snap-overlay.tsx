@@ -52,7 +52,7 @@ export default function SnapOverlay() {
 
     const ctx = canvas.getContext("2d");
     ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
-    ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+    ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     function handleMouseDown(event: MouseEvent) {
