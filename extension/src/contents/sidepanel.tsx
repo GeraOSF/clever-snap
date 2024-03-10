@@ -22,7 +22,7 @@ export default function Sidepanel() {
   const [panelOpen, setPanelOpen] = useState(false);
   const [imgUri, setImgUri] = useState("");
   const [answer, setAnswer] = useState("");
-  const [generatingAnswer, setGeneratingAnswer] = useState(false);
+  const [answering, setAnswering] = useState(false);
 
   function beginSnap() {
     chrome.runtime.sendMessage({ message: "begin-snap" });
@@ -42,7 +42,7 @@ export default function Sidepanel() {
       if (request.message === "show-snap") {
         const img = new Image();
         img.onload = async () => {
-          setGeneratingAnswer(true);
+          setAnswering(true);
           const cropWidth = coordinates.end.x - coordinates.start.x - 2;
           const cropHeight = coordinates.end.y - coordinates.start.y - 2;
           const canvas = document.createElement("canvas");
@@ -66,7 +66,7 @@ export default function Sidepanel() {
             name: "generate-answer",
             body: { imgUri: croppedImgUri }
           });
-          setGeneratingAnswer(false);
+          setAnswering(false);
           setAnswer(answer);
         };
         img.src = fullImgUri;
@@ -114,9 +114,9 @@ export default function Sidepanel() {
         onClick={beginSnap}
         size="lg"
         className="gap-1 disabled:opacity-100"
-        disabled={generatingAnswer}>
+        disabled={answering}>
         <div className="relative">
-          {generatingAnswer ? (
+          {answering ? (
             <CircleDashedIcon className="animate-spin" size={32} />
           ) : (
             <BoxSelectIcon size={32} />
@@ -126,7 +126,7 @@ export default function Sidepanel() {
             className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
           />
         </div>
-        {generatingAnswer ? "Getting your answer" : "Draw a box"}
+        {answering ? "Getting your answer" : "Draw a box"}
       </Button>
       {imgUri && (
         <img
@@ -135,7 +135,7 @@ export default function Sidepanel() {
           className="max-h-52 w-full object-contain"
         />
       )}
-      {answer && !generatingAnswer && (
+      {answer && !answering && (
         <div className="text-center">
           <h2 className="text-lg font-bold">Answer</h2>
           <p>{answer}</p>
