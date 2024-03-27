@@ -5,7 +5,6 @@ import express from "express";
 const app = express();
 app.use(express.json({ limit: "2mb" }));
 
-// Routes
 app.use("/answer", answerRouter);
 
 app.listen(PORT, () => {
