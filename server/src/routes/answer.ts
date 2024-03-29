@@ -1,4 +1,4 @@
-import { OPENAI_API_KEY } from "@/env-vars";
+import { OPENAI_API_KEY } from "@/lib/config";
 import { Router } from "express";
 import OpenAI from "openai";
 

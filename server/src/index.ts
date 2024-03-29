@@ -1,4 +1,4 @@
-import { PORT } from "@/env-vars";
+import { PORT } from "@/lib/config";
 import answerRouter from "@/routes/answer";
 import express from "express";
 
