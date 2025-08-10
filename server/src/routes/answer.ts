@@ -13,7 +13,7 @@ answerRouter.post("/generate", async (req, res) => {
 
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-4-vision-preview",
+      model: "gpt-5-nano",
       messages: [
         {
           role: "system",
@@ -30,7 +30,7 @@ answerRouter.post("/generate", async (req, res) => {
           ],
         },
       ],
-      max_tokens: 1000,
+      max_completion_tokens: 1000,
     });
     const answer = response.choices[0].message.content;
     res.json({ answer });
