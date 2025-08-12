@@ -169,6 +169,7 @@ export default function Sidepanel() {
               placeholder="Ask a follow-up..."
               value={followUpQuestion}
               onChange={(e) => setFollowUpQuestion(e.target.value)}
+              disabled={followUpLoading}
             />
             <Button onClick={handleFollowUp} disabled={followUpLoading}>
               {followUpLoading ? "Asking..." : "Ask"}
