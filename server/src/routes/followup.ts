@@ -11,20 +11,21 @@ followUpRouter.post("/answer", async (req, res) => {
     answer: originalAnswer,
     question,
   }: { imgUri: string; answer: string; question: string } = req.body;
-  if (!imgUri) {
-    return res.status(400).send("imgUri is required");
-  }
-  if (!originalAnswer) {
-    return res.status(400).send("Original answer is required");
-  }
 
-  if (!question) {
-    return res.status(400).send("Follow-up question is required");
-  }
+  if (!imgUri) return res.status(400).send("imgUri is required");
+  if (!originalAnswer)
+    return res.status(400).send("Original answer is required");
+  if (!question) return res.status(400).send("Follow-up question is required");
+
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+  res.flushHeaders();
 
   try {
-    const response = await openai.chat.completions.create({
+    const stream = await openai.chat.completions.create({
       model: "gpt-5-nano",
+      stream: true,
       messages: [
         {
           role: "system",
@@ -47,11 +48,19 @@ followUpRouter.post("/answer", async (req, res) => {
       ],
       max_completion_tokens: 2000,
     });
-    const followUpAnswer = response.choices[0].message.content;
-    res.json({ answer: followUpAnswer });
+    for await (const chunk of stream) {
+      const token = chunk.choices[0]?.delta?.content || "";
+      if (token) {
+        res.write(`data: ${token}\n\n`);
+      }
+    }
+
+    res.write("data: [DONE]\n\n");
+    res.end();
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error while generating follow up answer.");
+    res.write("data: [ERROR]\n\n");
+    res.end();
   }
 });
 
