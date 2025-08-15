@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import cssText from "data-text:@/style.css";
 import {
@@ -23,10 +24,60 @@ export default function Sidepanel() {
   const [imgUri, setImgUri] = useState("");
   const [answer, setAnswer] = useState("");
   const [answering, setAnswering] = useState(false);
+  const [followUpQuestion, setFollowUpQuestion] = useState("");
+  const [followUpAnswer, setFollowUpAnswer] = useState("");
+  const [followUpLoading, setFollowUpLoading] = useState(false);
 
   function beginSnap() {
     chrome.runtime.sendMessage({ message: "begin-snap" });
     setPanelOpen(false);
+  }
+
+  async function handleFollowUp() {
+    if (!followUpQuestion.trim()) return;
+    setFollowUpLoading(true);
+    setFollowUpAnswer("");
+
+    try {
+      const response = await fetch(
+        `http://localhost:${process.env.PLASMO_PUBLIC_PORT}/followup/answer`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.API_TOKEN || "my-secret-token"}`
+          },
+          body: JSON.stringify({
+            imgUri,
+            answer, // original AI answer
+            question: followUpQuestion
+          })
+        }
+      );
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split("\n\n");
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const data = line.replace("data: ", "");
+            if (data === "[DONE]") return;
+            setFollowUpAnswer((prev) => prev + data);
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Streaming error:", err);
+    } finally {
+      setFollowUpLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -91,6 +142,16 @@ export default function Sidepanel() {
     return () => clearTimeout(timeout);
   }, [panelOpen]);
 
+  useEffect(() => {
+    const listener = (message: { name: string; chunk?: string }) => {
+      if (message.name === "follow-up-chunk" && message.chunk) {
+        setFollowUpAnswer((prev) => prev + message.chunk);
+      }
+    };
+    chrome.runtime.onMessage.addListener(listener);
+    return () => chrome.runtime.onMessage.removeListener(listener);
+  }, []);
+
   if (!mounted) return null;
   return (
     <div
@@ -139,6 +200,25 @@ export default function Sidepanel() {
         <div className="text-center">
           <h2 className="text-lg font-bold">Answer</h2>
           <p>{answer}</p>
+
+          <div className="mt-2 flex items-center gap-2">
+            <Input
+              placeholder="Ask a follow-up..."
+              value={followUpQuestion}
+              onChange={(e) => setFollowUpQuestion(e.target.value)}
+              disabled={followUpLoading}
+            />
+            <Button onClick={handleFollowUp} disabled={followUpLoading}>
+              {followUpLoading ? "Asking..." : "Ask"}
+            </Button>
+          </div>
+
+          {followUpAnswer && (
+            <div className="mt-2 border-t pt-2 text-left">
+              <h3 className="font-semibold">Follow-up Answer:</h3>
+              <p>{followUpAnswer}</p>
+            </div>
+          )}
         </div>
       )}
     </div>
