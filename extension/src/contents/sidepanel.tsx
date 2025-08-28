@@ -45,7 +45,7 @@ export default function Sidepanel() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.API_TOKEN || "my-secret-token"}`
+            Authorization: `Bearer ${process.env.PLASMO_PUBLIC_API_TOKEN || "my-secret-token"}`
           },
           body: JSON.stringify({
             imgUri,
@@ -170,7 +170,7 @@ export default function Sidepanel() {
         className="self-end rounded-full">
         <XIcon />
       </Button>
-      <h1 className="text-center text-xl font-black">Clever Snap</h1>
+      <h1 className="text-xl font-black text-center">Clever Snap</h1>
       <Button
         onClick={beginSnap}
         size="lg"
@@ -184,7 +184,7 @@ export default function Sidepanel() {
           )}
           <CameraIcon
             size={18}
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+            className="absolute -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2"
           />
         </div>
         {answering ? "Getting your answer" : "Draw a box"}
@@ -193,7 +193,7 @@ export default function Sidepanel() {
         <img
           src={imgUri}
           alt="Snapshot"
-          className="max-h-52 w-full object-contain"
+          className="object-contain w-full max-h-52"
         />
       )}
       {answer && !answering && (
@@ -201,7 +201,7 @@ export default function Sidepanel() {
           <h2 className="text-lg font-bold">Answer</h2>
           <p>{answer}</p>
 
-          <div className="mt-2 flex items-center gap-2">
+          <div className="flex items-center gap-2 mt-2">
             <Input
               placeholder="Ask a follow-up..."
               value={followUpQuestion}
@@ -214,7 +214,7 @@ export default function Sidepanel() {
           </div>
 
           {followUpAnswer && (
-            <div className="mt-2 border-t pt-2 text-left">
+            <div className="pt-2 mt-2 text-left border-t">
               <h3 className="font-semibold">Follow-up Answer:</h3>
               <p>{followUpAnswer}</p>
             </div>
